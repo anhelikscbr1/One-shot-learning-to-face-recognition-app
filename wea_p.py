@@ -23,13 +23,13 @@ all_objects = client.data_object.get(class_name="Img")
 object_list = all_objects.get('objects')
 print(len(object_list))
 
-#for img in object_list:
-    #print (img.get('properties').get('name'))
+for img in object_list:
+    print (img.get('properties').get('name'))
 
 where_filter = {
     "path": ["name"],
     "operator": "Equal",
-    "valueText": "uriel01",
+    "valueText": "52",
 }
 result = (
     client.query
