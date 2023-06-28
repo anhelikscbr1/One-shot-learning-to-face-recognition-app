@@ -101,14 +101,20 @@ class FaceEmbedding:
                         #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                         bounding_boxes, points = self.alignMTCNN.get_bounding_boxes(image=img)
                         faces = self.get_faces(img, bounding_boxes, points, img_path)
-                        self.weaviate(faces, client)
+                        self.weaviate(faces, client, single = True)
                         return faces
-    def weaviate(self, faces, client):
+    def weaviate(self, faces, client, single=False):
         aux = 0
+        # file name with extension
+        file_name = os.path.basename(faces[0].get("name"))
+
+        # file name without extension
+        file_name=os.path.splitext(file_name)[0]
+        print('file= '+file_name)
         where_filter = {
             "path": ["name"],
             "operator": "Equal",
-            "valueText": faces[0].get("name"),
+            "valueText": file_name,
         }
         result = (
             client.query
@@ -121,10 +127,14 @@ class FaceEmbedding:
 
         if aux > 0:
             print('Image Name alrady exists in DB')
-            return
+            return faces
+        else:
+            if(single):
+                print("Copying to DB")
+                #copiar imagen nueva a la ruta de imagenes de la db si el checkbox esta activo
 
         data_obj = {
-            "name": faces[0].get("name")
+            "name": file_name
         }
 
         data_uuid = client.data_object.create(
@@ -302,9 +312,11 @@ class FaceEmbedding:
         client = weaviate.Client(
             url="https://oneshot-learning-ugto-n5yo5ft6.weaviate.network",  # Replace with your endpoint
         )
-        if flag:
+        if flag==True:
+            print("flag: true")
             embedding = face_embedding.convert_to_embedding(single=True, img_path = image_path, flag=True )
         else:
+            print("flag: false")
             embedding = face_embedding.convert_to_embedding(single=True, img_path = image_path, flag=False )
         results = client.query.get("Img", ["name"]).with_near_vector({"vector": embedding[0].get("embedding")}).with_additional(["distance"]).with_limit(limit).do()
         #print(results)

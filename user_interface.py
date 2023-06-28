@@ -22,7 +22,6 @@ class UserInterface(QtCore.QObject): #An object wrapping around our ui
         self.ui.show()
 
     def get_image(self):
-        self.flag = False
         wid1  = self.ui.widget
         vbox = QVBoxLayout() 
         wid1  = self.ui.widget
@@ -56,7 +55,7 @@ class UserInterface(QtCore.QObject): #An object wrapping around our ui
         face_embedding = FaceEmbedding()
         imagePath2 = "./people2/" + face_embedding.nw_image_weaviate(face_embedding, self.image, 1, self.flag)
         wid2 = self.ui.widget_2
-        print(imagePath2)
+        #print(imagePath2)
         pixmap2 = QPixmap(imagePath2)
         #self.label.setPixmap(QPixmap(pixmap))
         scaled_pixmap2 = pixmap2.scaled(350, 350, QtCore.Qt.KeepAspectRatio)

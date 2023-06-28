@@ -96,26 +96,33 @@ class FaceEmbedding:
 
     def weaviate(self, faces, client):
         aux = 0
-        where_filter = {
-            "path": ["name"],
-            "operator": "Equal",
-            "valueText": faces[0].get("name"),
-        }
-        result = (
-            client.query
-            .get("Img", ["name"])
-            .with_where(where_filter)
-            .do()
-        )
-        for i in result:
-            aux = len(result.get('data').get('Get').get('Img'))
+        # file name with extension
+        file_name = os.path.basename(faces[0].get("name"))
 
-        if aux > 0:
-            print('Image Name alrady exists in DB')
-            return
+        # file name without extension
+        file_name=os.path.splitext(file_name)[0]
+        print('file= '+file_name)
+#        where_filter = {
+            #"path": ["name"],
+            #"operator": "Equal",
+            #"valueText": file_name,
+        #}
+        #result = (
+            #client.query
+            #.get("Img", ["name"])
+            #.with_where(where_filter)
+            #.do()
+        #)
+        #for i in result:
+            #aux = len(result.get('data').get('Get').get('Img'))
+
+        #if aux > 0:
+            #print('Image Name alrady exists in DB')
+            #return faces
 
         data_obj = {
-            "name": faces[0].get("name")
+            #"name": faces[0].get("name")
+            "name": file_name 
         }
 
         data_uuid = client.data_object.create(
