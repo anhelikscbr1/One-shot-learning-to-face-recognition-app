@@ -13,6 +13,7 @@ class UserInterface(QtCore.QObject): #An object wrapping around our ui
         self.ui = loader.load("ui_model.ui", None)
         self.ui.setWindowTitle("One-Shot Learning Vector Database APP")
         self.image = '' 
+<<<<<<< Updated upstream
         
         self.get_image()
         self.check_button()
@@ -21,6 +22,10 @@ class UserInterface(QtCore.QObject): #An object wrapping around our ui
         self.ui.show()
 
     def get_image(self):
+=======
+        self.flag = False
+        wid1  = self.ui.widget
+>>>>>>> Stashed changes
         vbox = QVBoxLayout() 
         wid1  = self.ui.widget
         self.ui.pushButton.clicked.connect(self.select_image)
@@ -51,7 +56,12 @@ class UserInterface(QtCore.QObject): #An object wrapping around our ui
 
     def check_on_db(self):
         face_embedding = FaceEmbedding()
+<<<<<<< Updated upstream
         imagePath2 = "./people2/" + face_embedding.nw_image_weaviate(face_embedding, self.image, 1)
+=======
+        imagePath2 = "./people2/" + face_embedding.nw_image_weaviate(face_embedding, self.image, 1, self.flag)
+        wid2 = self.ui.widget_2
+>>>>>>> Stashed changes
         print(imagePath2)
         pixmap2 = QPixmap(imagePath2)
         #self.label.setPixmap(QPixmap(pixmap))

@@ -57,7 +57,7 @@ class FaceEmbedding:
         self.margin=44
         self.detect_multiple_faces = False
 
-    def convert_to_embedding(self, single=False, img_path=None):
+    def convert_to_embedding(self, single=False, img_path=None, flag=False):
         extracted = []
         client = weaviate.Client(
             url="https://oneshot-learning-ugto-n5yo5ft6.weaviate.network",  # Replace with your endpoint
@@ -90,13 +90,39 @@ class FaceEmbedding:
                         with open('extracted_embeddings.pickle','wb') as f:
                             pickle.dump(extracted,f)
                         return faces
-                    else:
+                    if single and flag==False:
                         img = cv2.imread(img_path, 1)
                         #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                         bounding_boxes, points = self.alignMTCNN.get_bounding_boxes(image=img)
                         faces = self.get_faces(img, bounding_boxes, points, img_path)
                         return faces
+                    else:
+                        img = cv2.imread(img_path, 1)
+                        #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                        bounding_boxes, points = self.alignMTCNN.get_bounding_boxes(image=img)
+                        faces = self.get_faces(img, bounding_boxes, points, img_path)
+                        self.weaviate(faces, client)
+                        return faces
     def weaviate(self, faces, client):
+        aux = 0
+        where_filter = {
+            "path": ["name"],
+            "operator": "Equal",
+            "valueText": faces[0].get("name"),
+        }
+        result = (
+            client.query
+            .get("Img", ["name"])
+            .with_where(where_filter)
+            .do()
+        )
+        for i in result:
+            aux = len(result.get('data').get('Get').get('Img'))
+
+        if aux > 0:
+            print('Image Name alrady exists in DB')
+            return
+
         data_obj = {
             "name": faces[0].get("name")
         }
@@ -272,11 +298,14 @@ class FaceEmbedding:
 
         print("End")
 
-    def nw_image_weaviate(self,  face_embedding, image_path, limit):
+    def nw_image_weaviate(self,  face_embedding, image_path, limit, flag):
         client = weaviate.Client(
             url="https://oneshot-learning-ugto-n5yo5ft6.weaviate.network",  # Replace with your endpoint
         )
-        embedding = face_embedding.convert_to_embedding(single=True, img_path = image_path)
+        if flag:
+            embedding = face_embedding.convert_to_embedding(single=True, img_path = image_path, flag=True )
+        else:
+            embedding = face_embedding.convert_to_embedding(single=True, img_path = image_path, flag=False )
         results = client.query.get("Img", ["name"]).with_near_vector({"vector": embedding[0].get("embedding")}).with_additional(["distance"]).with_limit(limit).do()
         #print(results)
         results = results.get('data').get('Get').get('Img')
@@ -302,4 +331,4 @@ if __name__ == '__main__':
 
     ##############Looking for first n-coincidences##############  
     #face_embedding.nw_images_range('test4.jpg', 1)
-    face_embedding.nw_image_weaviate(face_embedding, 'test6.jpg', 1)
+    #face_embedding.nw_image_weaviate(face_embedding, 'test6.jpg', 1)

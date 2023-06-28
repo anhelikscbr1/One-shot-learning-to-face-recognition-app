@@ -18,10 +18,27 @@ client = weaviate.Client(
 #create_db(client) #Se usa una sola vez para crear el esquema
 get = client.schema.get()
 #print(get)
-all_objects = client.data_object.get(class_name="Img", limit =10)
+#all_objects = client.data_object.get(class_name="Img", limit =10)
+all_objects = client.data_object.get(class_name="Img")
 object_list = all_objects.get('objects')
+print(len(object_list))
 
-for img in object_list:
-    print (img.get('properties').get('name'))
+#for img in object_list:
+    #print (img.get('properties').get('name'))
+
+where_filter = {
+    "path": ["name"],
+    "operator": "Equal",
+    "valueText": "uriel01",
+}
+result = (
+    client.query
+    .get("Img", ["name"])
+    .with_where(where_filter)
+    .do()
+)
 #results = client.query.get("Img").with_near_vector({"vector": [0.1,0.2,0.3,0.4]}).with_additional(["vector", "distance"]).do()
-#print(results)
+print(result)
+for i in result:
+    print(len(result.get('data').get('Get').get('Img')))
+#print(len(result))
