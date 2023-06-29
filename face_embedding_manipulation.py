@@ -100,6 +100,7 @@ class FaceEmbedding:
                         #self.weaviate(faces, client, single = True)
                         return faces
     def weaviate(self, faces, client, single=False):
+        print(" Entering to DB")
         aux = 0
         # file name with extension
         file_name = os.path.basename(faces[0].get("name"))
