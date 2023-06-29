@@ -13,10 +13,19 @@ class UserInterface(QtCore.QObject): #An object wrapping around our ui
         self.ui = loader.load("ui_model.ui", None)
         self.ui.setWindowTitle("One-Shot Learning Vector Database APP")
         self.image = '' 
-        self.flag = True
+        self.flag = False
         
         self.get_image()
         self.check_button()
+        self.ui.checkBox.stateChanged.connect(self.checkBox_db)
+    
+    def checkBox_db(self):
+        if(self.flag):
+            self.flag = False
+            print(self.flag)
+        else:
+            self.flag = True
+            print(self.flag)
        
     def show(self):
         self.ui.show()
