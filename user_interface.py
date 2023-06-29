@@ -13,7 +13,7 @@ class UserInterface(QtCore.QObject): #An object wrapping around our ui
         self.ui = loader.load("ui_model.ui", None)
         self.ui.setWindowTitle("One-Shot Learning Vector Database APP")
         self.image = '' 
-        self.flag = False
+        self.flag = True
         
         self.get_image()
         self.check_button()

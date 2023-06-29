@@ -27,6 +27,8 @@ import pickle
 import cv2
 from align_mtcnn import AlignMTCNN
 import tensorflow.compat.v1 as tf
+
+import shutil #To copy a new file to DB folder
 #from google.colab.patches import cv2_imshow
 from datetime import datetime
 
@@ -57,7 +59,7 @@ class FaceEmbedding:
         self.margin=44
         self.detect_multiple_faces = False
 
-    def convert_to_embedding(self, single=False, img_path=None, flag=False):
+    def convert_to_embedding(self, single=False, img_path=None):
         extracted = []
         client = weaviate.Client(
             url="https://oneshot-learning-ugto-n5yo5ft6.weaviate.network",  # Replace with your endpoint
@@ -90,18 +92,12 @@ class FaceEmbedding:
                         with open('extracted_embeddings.pickle','wb') as f:
                             pickle.dump(extracted,f)
                         return faces
-                    if single and flag==False:
-                        img = cv2.imread(img_path, 1)
-                        #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                        bounding_boxes, points = self.alignMTCNN.get_bounding_boxes(image=img)
-                        faces = self.get_faces(img, bounding_boxes, points, img_path)
-                        return faces
                     else:
                         img = cv2.imread(img_path, 1)
                         #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                         bounding_boxes, points = self.alignMTCNN.get_bounding_boxes(image=img)
                         faces = self.get_faces(img, bounding_boxes, points, img_path)
-                        self.weaviate(faces, client, single = True)
+                        #self.weaviate(faces, client, single = True)
                         return faces
     def weaviate(self, faces, client, single=False):
         aux = 0
@@ -131,6 +127,7 @@ class FaceEmbedding:
         else:
             if(single):
                 print("Copying to DB")
+                shutil.copy(faces[0].get("name"), "./people2/")
                 #copiar imagen nueva a la ruta de imagenes de la db si el checkbox esta activo
 
         data_obj = {
@@ -312,15 +309,12 @@ class FaceEmbedding:
         client = weaviate.Client(
             url="https://oneshot-learning-ugto-n5yo5ft6.weaviate.network",  # Replace with your endpoint
         )
-        if flag==True:
-            print("flag: true")
-            embedding = face_embedding.convert_to_embedding(single=True, img_path = image_path, flag=True )
-        else:
-            print("flag: false")
-            embedding = face_embedding.convert_to_embedding(single=True, img_path = image_path, flag=False )
+        embedding = face_embedding.convert_to_embedding(single=True, img_path = image_path )
         results = client.query.get("Img", ["name"]).with_near_vector({"vector": embedding[0].get("embedding")}).with_additional(["distance"]).with_limit(limit).do()
         #print(results)
         results = results.get('data').get('Get').get('Img')
+        if flag==True:
+            self.weaviate(embedding, client, single = True)
         for i in results:
             print(i.get('_additional').get('distance'), i.get('name'))
             return i.get('name')
