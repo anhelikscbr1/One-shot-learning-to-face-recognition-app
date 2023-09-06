@@ -62,7 +62,7 @@ class FaceEmbedding:
     def convert_to_embedding(self, single=False, img_path=None):
         extracted = []
         client = weaviate.Client(
-            url="https://oneshot-learning-ugto-n5yo5ft6.weaviate.network",  # Replace with your endpoint
+            url="https://my-facerecognition-cluster-ny6jrymo.weaviate.network",  # Replace with your endpoint
         )
         with tf.Graph().as_default():
                 with tf.Session() as sess:
@@ -308,7 +308,7 @@ class FaceEmbedding:
 
     def nw_image_weaviate(self,  face_embedding, image_path, limit, flag):
         client = weaviate.Client(
-            url="https://oneshot-learning-ugto-n5yo5ft6.weaviate.network",  # Replace with your endpoint
+            url="https://my-facerecognition-cluster-ny6jrymo.weaviate.network",  # Replace with your endpoint
         )
         embedding = face_embedding.convert_to_embedding(single=True, img_path = image_path )
         results = client.query.get("Img", ["name"]).with_near_vector({"vector": embedding[0].get("embedding")}).with_additional(["distance"]).with_limit(limit).do()

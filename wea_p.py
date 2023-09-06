@@ -13,7 +13,7 @@ def create_db(client):
     client.schema.create_class(class_obj)
 
 client = weaviate.Client(
-    url="https://oneshot-learning-ugto-n5yo5ft6.weaviate.network",  # Replace with your endpoint
+    url="https://my-facerecognition-cluster-ny6jrymo.weaviate.network",  # Replace with your endpoint
 )
 #create_db(client) #Se usa una sola vez para crear el esquema
 get = client.schema.get()
@@ -37,8 +37,3 @@ result = (
     .with_where(where_filter)
     .do()
 )
-#results = client.query.get("Img").with_near_vector({"vector": [0.1,0.2,0.3,0.4]}).with_additional(["vector", "distance"]).do()
-print(result)
-for i in result:
-    print(len(result.get('data').get('Get').get('Img')))
-#print(len(result))
